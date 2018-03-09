@@ -13,19 +13,22 @@ const STATUS_OK = 200;
 //const yesterdayPrice = fetch(YESTERDAY_PRICE_REQ)
 //server.use(bodyParser.json());
 
+const CURRENT_PRICE_REQ = 'https://api.coindesk.com/v1/bpi/currentprice.json';
+const YESTERDAY_PRICE_REQ = 'https://api.coindesk.com/v1/bpi/historical/close.json?for=yesterday';
 server.get('/compare', (req, res) => {
-  let CURRENT_PRICE_REQ = 'https://api.coindesk.com/v1/bpi/currentprice/BTC.json';
-  let YESTERDAY_PRICE_REQ = 'http://api.coindesk.com/v1/bpi/historical/close.json?for=yesterday';
+
+
   fetch(YESTERDAY_PRICE_REQ)
     .then(data => data.json())
+  console.log(data.json())
     .then(data => {
       const yesterdayOriginal = data.bpi[Object.keys(data.bpi)[0]];
       const yesterday = yesterdayOriginal.toFixed(3);
       fetch(CURRENT_PRICE_REQ)
         .then(data => data.json())
+      console.log(data.json())
         .then(data => {
-          const today = (data.bpi.USD.rate).toFixed(3);
-          //then(data => data.json())
+          const today = data.bpi.USD.rate._float.toFixed(3);
           if (yesterday > today) {
             const difference = yesterday - today;
             const message = 'Compared to yesterday, Bitcoin is down $' + difference + ':(';
@@ -34,7 +37,7 @@ server.get('/compare', (req, res) => {
           } else if (yesterday < today) {
             difference = today - yesterday;
             const message = "Compared to yesterday, Bitcoin is up $" + difference + ':)';
-            res.status(STATUS_OK)
+            res.status(STATUS_OK);
             res.send(message);
           }
         })
